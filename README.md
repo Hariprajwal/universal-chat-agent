@@ -409,6 +409,6 @@ MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE) for 
 
 **If Chat Agent saved you time, give it a ⭐ — it helps others find it!**
 
-Made with ❤️ — An autonomous AI that chats like a human.
+Made with ❤️K R HARI PRAJWAL — An autonomous AI that chats like a human.
 
 </div>
