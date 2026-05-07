@@ -1,338 +1,363 @@
-# ⚡ Chat Agent — Autonomous AI Desktop Co-Pilot
+<div align="center">
 
-> **Select any region of your screen → Give a natural language instruction → Watch the AI do it for you.**
+# 💬 Chat Agent
 
-Chat Agent is a fully autonomous, vision-powered desktop automation tool. It captures a region of your screen, overlays a precision coordinate grid, sends the visual to a powerful AI model, and executes the resulting mouse clicks, keyboard inputs, scrolls, and drags — all without you lifting a finger.
+### The AI That Texts Back For You
+
+**An open-source, vision-powered AI agent that reads your screen and replies to messages on WhatsApp, Slack, Telegram, Discord — like a real human would.**
+
+[![Python](https://img.shields.io/badge/Python-3.10+-blue?style=flat-square&logo=python)](https://python.org)
+[![OpenRouter](https://img.shields.io/badge/Powered%20by-OpenRouter-purple?style=flat-square)](https://openrouter.ai)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Windows-blue?style=flat-square&logo=windows)](https://microsoft.com/windows)
+
+</div>
 
 ---
 
-## 🎯 What It Can Do
+## 🤔 What Is Chat Agent?
 
-| Capability | Example |
+**Chat Agent is a GUI-based AI bot that lives on your desktop.** It watches any window you point it at — WhatsApp Web, Slack, Telegram Desktop, Discord, iMessage — and automatically reads and responds to incoming messages like a real human being.
+
+No APIs. No browser extensions. No app integrations. It works at the **pixel level** — it sees your screen the same way you do, and it types on your behalf.
+
+Think of it as having a **virtual you** that keeps your chats alive when you're busy.
+
+> 🎯 **Core use case:** Open WhatsApp Web. Select the chat window. Turn on Watch Mode. Walk away. Chat Agent reads every message and replies naturally, contextually, and in plain human language — 24/7.
+
+---
+
+## ✨ Key Features
+
+| Feature | Description |
 |---|---|
-| **Click anything** | *"Click the Submit button"* |
-| **Type text** | *"Type my email address in the form"* |
-| **Send messages** | *"Send a message saying Hello"* — auto-presses Enter |
-| **Search the web** | *"Search for Python tutorials on Google"* |
-| **Fill forms** | *"Fill out the registration form with my details"* |
-| **Scroll pages** | *"Scroll down to find the pricing section"* |
-| **Drag & drop** | *"Drag the file to the uploads area"* |
-| **Keyboard shortcuts** | *"Select all text and copy it"* |
-| **Multi-step tasks** | *"Open a new tab, go to GitHub, and star the first repo"* |
-| **👁 Watch Mode** | Point at WhatsApp/Slack — auto-reads & replies to incoming messages continuously |
+| 👁 **Watch Mode** | Passively monitors any chat window and auto-replies to new messages |
+| 🧠 **Vision AI** | Uses multimodal AI to actually *read* what's on your screen |
+| 💬 **Human-like Replies** | Trained to write like a real person — no "Certainly!" or "As an AI..." ever |
+| 🖱️ **Full Desktop Control** | Clicks, types, scrolls, drags — full PyAutoGUI-powered automation |
+| ⚡ **Autonomous Loop** | Executes multi-step tasks without stopping until the job is done |
+| 🔄 **Silent Failover** | OpenRouter (cloud) by default, local Ollama as optional privacy mode |
+| 🚀 **Auto-launches Ollama** | If configured for local mode, starts Ollama automatically on boot |
+| 📱 **Platform Agnostic** | Works with any desktop chat app — WhatsApp, Slack, Telegram, Discord, Teams |
+
+---
+
+## 🎬 How It Works — The 30-Second Version
+
+```
+1. You press Ctrl+Shift+S
+2. You drag a box around your chat window
+3. Chat Agent captures the screen
+4. It sends the screenshot to a vision AI model
+5. The AI reads the message and decides what to type
+6. Chat Agent clicks the input box and types the reply
+7. It hits Enter to send
+8. It watches for the next message and repeats — forever
+```
+
+All of this happens in the background. You don't touch anything.
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-
-- **Python 3.10+** — [Download here](https://www.python.org/downloads/)
-- **Git** (optional) — [Download here](https://git-scm.com/)
-
----
-
-### 1. Clone the Repository
+### Step 1 — Clone the repo
 
 ```bash
-git clone https://github.com/your-username/Screen-agent.git
-cd Screen-agent
+git clone https://github.com/your-username/chat-agent.git
+cd chat-agent
 ```
 
-Or download the ZIP and extract it.
-
----
-
-### 2. Install Dependencies
+### Step 2 — Install dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
+### Step 3 — Get a free API key
 
-### 3. Set Up Your API Key
-
-1. Get your free API key at [openrouter.ai](https://openrouter.ai)
-2. Open the `.env` file in the project folder
-3. Paste your key:
+Chat Agent uses [OpenRouter](https://openrouter.ai) to access vision AI models.
+Sign up free → copy your key → paste it in `.env`:
 
 ```env
 OPENROUTER_API_KEY=sk-or-v1-your-key-here
 DEFAULT_BACKEND=openrouter
 ```
 
----
+> 💡 OpenRouter has a free tier. You don't need a credit card to get started.
 
-### 4. Launch the Agent
+### Step 4 — Launch
 
 ```bash
 python -W ignore main.py --now
 ```
 
-That's it! The agent is now running.
+> **⚠️ Watch Mode must be active for the agent to auto-reply to messages.** After selecting your chat window, click the `👁 Watch` button in the top bar of the agent panel. It turns green when active. Without Watch Mode ON, the agent won't respond automatically.
 
 ---
 
-## 🖥️ How to Use It
+## 👁 Watch Mode — The Core Feature
 
-### Step 1 — Trigger the Screen Selector
-
-Press the global hotkey:
-
-```
-Ctrl + Shift + S
-```
-
-Your screen will darken and a crosshair will appear.
-
-### Step 2 — Select Your Region
-
-Click and **drag a red selection box** around the area you want the agent to control (e.g., a browser window, a chat app, a form).
-
-### Step 3 — Give an Instruction
-
-The agent panel pops up. Type your instruction in plain English:
-
-> *"Click the Plus icon next to the chat input and type Hello world, then send it."*
-
-### Step 4 — Watch It Execute
-
-The agent will:
-1. Analyze the screenshot with the AI precision grid overlay
-2. Plan the sequence of actions
-3. Execute them step-by-step (click → type → scroll → etc.)
-4. Automatically re-capture the screen to see the result
-5. Continue with the next step if the task isn't finished
-
-Press **⏹ Stop** at any time to interrupt execution.
-
----
-
-## 👁 Watch Mode — Autonomous Chat Monitoring
-
-Watch Mode turns Chat Agent into a **fully autonomous chat responder** for any messaging app on your screen. Once enabled, it monitors your chat window continuously and replies to every incoming message automatically — no manual trigger needed.
+Watch Mode is what makes Chat Agent special. It's a passive screen monitor that keeps running in the background, watching for new messages.
 
 ### How to enable it:
 
-1. Select your chat window region with `Ctrl+Shift+S`
-2. Give it context first (optional but recommended):
-   > *"You are responding as me in this WhatsApp chat. Reply like a real, thoughtful person."*
-3. Click the **`👁 Watch`** button in the top bar — it turns **green**
-4. Walk away — the agent handles everything
+1. Press `Ctrl + Shift + S`
+2. Drag a selection box around your chat window (WhatsApp, Slack, etc.)
+3. Optionally type a context message like:
+   > *"You are me. Respond to these WhatsApp messages naturally."*
+4. Click the **`👁 Watch`** button — it turns **green**
+5. That's it. Leave it running.
 
-### What happens automatically:
+### What happens next:
 
-- The agent polls the **bottom 35%** of your selected region every 1.5 seconds using `mss` (ultra-fast, low CPU)
-- When a new message arrives, it **waits 4 seconds** (debounce) to let the person finish sending all their messages before responding
-- The AI reads the **full visible conversation** for context, then decides on its own how to reply
-- **Replies are fully dynamic** — short if the message is simple, longer (2-4 sentences) if the topic needs it
-- Sends **1 or 2 messages** per trigger, naturally, like a real person
-- **Plain text only** — no emojis in replies
-- After replying, it **automatically resets** and resumes monitoring — no action needed from you
-- Click **⏹ Stop** or the green **👁 Watching** button again to disable
+- Every **1.5 seconds**, the agent captures the **bottom 35%** of your selected window (where new messages always appear) using ultra-fast `mss` screen capture
+- When a new message arrives, it **waits 4 seconds** (debounce) to collect all messages the person sent before composing a reply
+- The AI sees the **full conversation** for context, then writes a reply in plain, human-sounding language
+- It sends **1 or 2 messages** per trigger (decided dynamically based on what feels natural)
+- After sending, it resets and resumes watching — **no manual action required**
+- Click **⏹ Stop** or the green Watch button again to disable
 
-### Watch Mode behavior at a glance:
+### Watch Mode settings at a glance:
 
-| Setting | Value |
+| Parameter | Value |
 |---|---|
-| Poll frequency | Every 1.5 seconds |
-| Debounce wait | 4 seconds (collects all incoming messages) |
-| Replies per trigger | 1–2 (AI decides based on context) |
-| Reply style | Dynamic — short or long as needed |
-| Emojis | None — plain text only |
-| Cooldown after reply | 5 seconds |
-| Context window | Full conversation visible on screen |
-| Stuck/Error recovery | Auto-resets on any failure |
+| Capture method | `mss` (fastest Python screen capture) |
+| Capture region | Bottom 35% of selected window |
+| Change detection | MD5 hash of 32×32 grayscale thumbnail |
+| Poll interval | 1.5 seconds |
+| Debounce wait | 4 seconds |
+| Replies per message | 1–2 (AI decides) |
+| Reply tone | Casual, human, plain text — no emojis |
+| Auto-reset after reply | Yes (5 second cooldown) |
+| Stuck/crash recovery | Automatic |
+
+---
+
+## 💬 Supported Platforms
+
+Chat Agent works on **any desktop app** because it operates at the pixel level — not through APIs or browser plugins.
+
+| Platform | Desktop App Required? | Notes |
+|---|---|---|
+| **WhatsApp** | WhatsApp Web (browser) | Works perfectly |
+| **Telegram** | Telegram Desktop | Works perfectly |
+| **Slack** | Slack Desktop or Web | Works perfectly |
+| **Discord** | Discord App or Web | Works perfectly |
+| **Microsoft Teams** | Teams Desktop | Works perfectly |
+| **Instagram DMs** | Browser | Works |
+| **Facebook Messenger** | Browser | Works |
+| **iMessage** | Only on Mac | Works on Mac with minor setup |
+| **Signal** | Signal Desktop | Works |
+| **Any text chat** | — | If you can see it, Chat Agent can read it |
+
+---
+
+## 🧠 The AI Behind It
+
+### Why vision AI?
+
+Traditional chatbots use APIs and webhooks. Chat Agent uses **multimodal vision models** — the same technology behind GPT-4o's image understanding. Instead of integrating with each platform's API (which requires registration, approval, and maintenance), Chat Agent just *looks at your screen*.
+
+This means:
+- ✅ Works on **any platform** without any integration
+- ✅ Reads the **full conversation context** visually
+- ✅ Sees UI changes in **real time**
+- ✅ No account access, no tokens, no scopes
+
+### Coordinate Grid System
+
+Every screenshot is overlaid with a **20×20 precision grid** before being sent to the AI. The grid uses a 0–1000 normalized coordinate system with:
+- Faint lines every 50 units
+- Bold lines every 100 units
+
+This gives the AI a spatial ruler so it can pinpoint UI elements like input boxes, send buttons, and message bubbles with high accuracy.
+
+### Bounding Box Targeting
+
+Instead of clicking a single `(X, Y)` pixel (which is error-prone), the AI outputs a **bounding box** `[xmin, ymin, xmax, ymax]` around the target element. The executor calculates the center of the box and clicks there. This is how modern vision models are trained — on object detection data — making it naturally more accurate.
+
+---
+
+## 🤖 Human-Like Replies
+
+Chat Agent is specifically tuned to **not sound like an AI**. The system prompt explicitly instructs the model to:
+
+- Write casually, like a real person texting
+- Use contractions naturally ("I'm", "it's", "that's")
+- Vary sentence length for a natural rhythm
+- **Never** use phrases like *"Certainly!", "Of course!", "I understand your concern", "As an AI..."*
+- Keep replies appropriately short or long based on context
+- Match the energy of the conversation (brief reply to a brief message, fuller reply to a detailed question)
 
 ---
 
 ## ⚙️ Configuration
 
-All settings are in the `.env` file:
+All settings live in the `.env` file:
 
-| Setting | Default | Description |
-|---|---|---|
-| `OPENROUTER_API_KEY` | *(required)* | Your OpenRouter API key |
-| `DEFAULT_BACKEND` | `openrouter` | Use `openrouter` (cloud) or `ollama` (local) |
-| `OPENROUTER_MODEL` | `auto` | Specific model or `auto` to pick best available |
-| `OLLAMA_HOST` | `http://localhost:11434` | URL of your local Ollama server |
-| `OLLAMA_MODEL` | `llava` | Default local vision model |
-| `CONTEXT_WINDOW_SIZE` | `20` | How many messages to keep in memory |
+```env
+# Required
+OPENROUTER_API_KEY=sk-or-v1-your-key-here
+
+# Backend: openrouter (cloud) or ollama (local)
+DEFAULT_BACKEND=openrouter
+
+# Optional: pin a specific model
+OPENROUTER_MODEL=auto
+
+# Local Ollama settings (if using local mode)
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=llava
+
+# Memory: how many messages to keep in context
+CONTEXT_WINDOW_SIZE=20
+```
 
 ---
 
-## 🤖 AI Backends
+## 🏠 Local Mode (Privacy-First)
 
-### ☁️ OpenRouter (Default — Recommended)
-
-Uses powerful cloud-hosted vision models. No local hardware needed.
-
-1. Sign up at [openrouter.ai](https://openrouter.ai) (free credits available)
-2. Copy your API key to `.env`
-3. The agent auto-selects the best available vision model
-
-### 🏠 Local Ollama (Privacy Mode)
-
-Run 100% offline with your own hardware. Requires a GPU (8GB+ VRAM recommended).
+If you want **100% offline** operation with no data leaving your machine:
 
 1. Install [Ollama](https://ollama.ai)
-2. Pull a vision model:
+2. Pull a vision-capable model:
    ```bash
    ollama pull llava
-   # or for better quality:
+   # Better quality:
    ollama pull minicpm-v
    ```
-3. Ollama starts **automatically** when Chat Agent launches — no need to run `ollama serve` manually!
-4. Switch in `.env`:
+3. Update `.env`:
    ```env
    DEFAULT_BACKEND=ollama
    ```
+4. Launch normally — Chat Agent **auto-starts Ollama** in the background if it isn't already running
 
-> **Note:** If local Ollama fails, the agent silently falls back to OpenRouter automatically.
+> If Ollama fails for any reason (model not found, too slow, etc.), Chat Agent silently falls back to OpenRouter without interrupting the session.
 
 ---
 
-## 🛠️ Advanced Launch Options
+## 🛠️ All Launch Options
 
 ```bash
-# Standard launch with system tray icon
+# Standard launch (system tray + hotkey)
 python -W ignore main.py
 
-# Launch the selector immediately (no tray)
+# Launch selector immediately — recommended for quick use
 python -W ignore main.py --now
 
-# Safe mode - log actions but don't execute them
+# Safe mode — log actions without executing
 python -W ignore main.py --dry-run
 
-# Disable system tray (hotkey only)
+# Hotkey only, no system tray
 python -W ignore main.py --no-tray
 ```
 
-### One-Click Launch (Windows)
+**One-click launch on Windows:** Double-click `launch.bat`
 
-Double-click **`launch.bat`** to start the agent in the background silently.
+**Global hotkey:** `Ctrl + Shift + S` — works from anywhere on your desktop
 
 ---
 
-## 🏗️ Project Structure
+## 🏗️ Architecture
 
 ```
-Screen-agent/
-├── main.py                  # Entry point — hotkey, tray, orchestration
-├── launch.bat               # One-click Windows launcher
-├── .env                     # Your API keys and config
-├── requirements.txt         # Python dependencies
+chat-agent/
+├── main.py                     # Entry point, hotkey, tray, orchestration
+├── launch.bat                  # One-click Windows launcher
+├── .env                        # API keys and configuration
+├── requirements.txt            # Python dependencies
 │
 ├── core/
-│   ├── capture.py           # Screen region selector + analysis grid overlay
-│   ├── executor.py          # Action parser & PyAutoGUI execution engine
-│   └── memory.py            # Conversation memory + system prompt
+│   ├── capture.py              # Region selector + 20x20 analysis grid overlay
+│   ├── executor.py             # Action parser + PyAutoGUI execution engine
+│   └── memory.py               # Sliding window memory + system prompt
 │
 ├── backends/
-│   ├── base.py              # Abstract backend interface
-│   ├── manager.py           # Backend switcher with silent failover
-│   ├── openrouter_backend.py# Cloud AI via OpenRouter API
-│   └── ollama_backend.py    # Local AI via Ollama
+│   ├── base.py                 # Abstract backend interface
+│   ├── manager.py              # Backend switcher + silent failover
+│   ├── openrouter_backend.py   # Cloud AI via OpenRouter
+│   └── ollama_backend.py       # Local AI via Ollama (auto-start)
 │
 └── ui/
-    ├── agent_window.py      # Floating chat window (streaming, bubbles, Watch Mode)
-    ├── overlay.py           # Fullscreen selection overlay (red highlight)
-    └── tray.py              # Windows system tray icon
+    ├── agent_window.py         # Floating chat panel (streaming, Watch Mode)
+    ├── overlay.py              # Fullscreen region selector overlay
+    └── tray.py                 # Windows system tray icon
 ```
 
 ---
 
-## 🔬 How It Works — Under the Hood
+## 🎮 Full Action Reference
 
-### 1. Visual Coordinate Grid
-Every screenshot is processed by the **Analysis Grid Engine** (`core/capture.py`) before being sent to the AI. A 20×20 precision grid is overlaid on the image with faint lines every 50 units and bold lines every 100 units on a 0–1000 normalized scale. This gives the AI a **spatial ruler** to reference, dramatically improving targeting accuracy.
+The AI can execute any of these actions on your screen:
 
-### 2. Bounding Box Coordinates
-Instead of asking the AI to guess a single `(X, Y)` pixel, the agent instructs it to output a **bounding box** `[xmin, ymin, xmax, ymax]` around the target element. The execution engine then calculates the exact center of that box for the mouse click. This matches how modern AI vision models are trained, making coordinates far more accurate.
-
-### 3. Normalized Coordinate System
-All AI coordinates are in a **0–1000 normalized scale** (not raw pixels). The executor translates them to actual screen pixels using the captured region's real dimensions and monitor offset. This makes the system resolution-independent.
-
-### 4. Autonomous Execution Loop
-After each batch of actions, the agent automatically:
-- Recaptures a fresh screenshot of the same region
-- Checks if the task is complete (`RESPONSE: DONE`) or needs more steps (`RESPONSE: CONTINUING`)
-- If continuing, silently feeds the new screenshot back to the AI for the next round of actions
-
-### 5. Watch Mode — Passive Screen Monitor
-The `👁 Watch` button launches a background thread that:
-- Uses `mss` to capture the **bottom 35%** of the region every 1.5 seconds (where new messages always appear)
-- Computes an **MD5 hash** of the 32×32 grayscale thumbnail to detect changes
-- Applies a **4-second debounce** so all incoming messages are collected before the AI responds
-- Feeds the **full conversation screenshot** to the AI for rich contextual replies
-- Resets automatically after every reply — no manual restart needed
-
-### 6. Streaming Response
-The AI response streams token-by-token into the chat bubble in real time, so you can see the agent's reasoning (ANALYSIS, PLAN, ACTIONS) as it thinks.
-
----
-
-## 🎮 Action Reference
-
-| Action | Syntax | Description |
+| Action | Syntax | What it does |
 |---|---|---|
-| Click | `CLICK(xmin, ymin, xmax, ymax)` | Left-click the center of a bounding box |
-| Right-click | `RCLICK(xmin, ymin, xmax, ymax)` | Right-click |
-| Double-click | `DCLICK(xmin, ymin, xmax, ymax)` | Double-click |
-| Type | `TYPE("hello world")` | Type text (supports all Unicode) |
-| Press key | `PRESS("enter")` | Press a keyboard key |
-| Hotkey | `HOTKEY(ctrl, c)` | Press a key combination |
-| Scroll | `SCROLL(x, y, clicks)` | Scroll up/down |
-| Hover | `HOVER(xmin, ymin, xmax, ymax)` | Move mouse without clicking |
+| Left click | `CLICK(xmin, ymin, xmax, ymax)` | Clicks the center of the bounding box |
+| Right click | `RCLICK(xmin, ymin, xmax, ymax)` | Right-click |
+| Double click | `DCLICK(xmin, ymin, xmax, ymax)` | Double-click |
+| Type text | `TYPE("your text here")` | Types via clipboard paste (supports all Unicode) |
+| Press key | `PRESS("enter")` | Press any keyboard key |
+| Key combo | `HOTKEY(ctrl, c)` | Press a keyboard shortcut |
+| Scroll | `SCROLL(x, y, clicks)` | Scroll the mouse wheel |
+| Hover | `HOVER(xmin, ymin, xmax, ymax)` | Move mouse (opens tooltips/dropdowns) |
 | Drag | `DRAG(sx, sy, ex, ey)` | Click-hold and drag |
-| Wait | `WAIT(500)` | Wait N milliseconds |
-| Screenshot | `SCREENSHOT()` | Force a new screenshot mid-task |
+| Wait | `WAIT(500)` | Pause for N milliseconds |
+| Screenshot | `SCREENSHOT()` | Force re-capture mid-task |
 
 ---
 
-## 🧠 Tips for Best Results
+## 💡 Tips & Best Practices
 
-1. **Select a tightly-cropped region** — Smaller region = more accurate targeting and faster Watch Mode detection.
+### For Watch Mode (Auto-Reply)
 
-2. **Be explicit** — Instead of *"fill the form"*, say *"click the Name field and type John Doe, then click the Email field and type john@example.com"*.
+1. **Select only the chat panel** — not your entire browser window. The smaller the region, the faster and more accurate the detection.
 
-3. **Use "send" or "search"** — The agent automatically presses Enter after typing when you say *"send a message"* or *"search for"*.
+2. **Give context first** — Before enabling Watch Mode, type a short description:
+   > *"This is my WhatsApp. Reply as me. Keep it casual and friendly."*
 
-4. **For dropdowns** — Say *"click the dropdown and select the second option"*.
+3. **Watch Mode must be ON** — Click the `👁 Watch` button and confirm it turns green before stepping away. Nothing auto-replies unless Watch Mode is active.
 
-5. **Multi-step is fine** — *"Open Notepad, type Hello World, save the file as test.txt"* works as a single instruction.
+4. **Don't switch windows** — Keep the chat app visible and in the foreground so the screen capture region stays accurate.
 
-6. **Watch Mode for chats** — Select just the chat panel (not the whole browser). Give it context first: *"Respond as me in this conversation"*. Then click 👁 Watch and leave it running.
+### For Manual Tasks
+
+5. **Be specific in your instructions** — *"Click the blue Send button"* works better than *"send it"*.
+
+6. **Chained tasks work great** — *"Open a new tab, go to google.com, search for Python tutorials, and click the first result"* executes as one instruction.
+
+7. **Auto-Enter is built in** — Saying *"search for X"* or *"send a message saying Y"* automatically presses Enter after typing.
 
 ---
 
 ## 🐛 Troubleshooting
 
-### Watch Mode gets stuck / stops responding
-- Click **⏹ Stop** then **👁 Watch** to restart it
-- Check the terminal for `[Watch]` debug logs to see what's happening
-- Make sure the selected region is the correct chat window
+### Watch Mode isn't responding to messages
 
-### Agent can't find a button
-- Try selecting a smaller, more focused region around just that button
-- Describe the button more precisely: *"Click the blue button labeled 'Continue'"*
+- ✅ Make sure the `👁 Watch` button is **green** (active)
+- ✅ Your chat window must be **visible on screen** (not minimized)
+- ✅ Select only the chat panel — not the entire desktop
+- 🔍 Check the terminal for `[Watch]` debug logs to trace what's happening
 
-### Clicks are landing in the wrong place
-- Make sure your selected region is exactly the window you want to control
+### Agent clicks in the wrong place
+
+- Select a smaller, tighter region around the target window
 - Don't move or resize the target window after selecting the region
 
-### OpenRouter API errors
-- Check your API key is correct in `.env`
-- Verify you have credits at [openrouter.ai](https://openrouter.ai)
+### OpenRouter errors
 
-### Ollama not connecting
-- Run `ollama pull llava` in a terminal first
-- The agent will auto-start Ollama, but the model must be downloaded first
+- Verify your `OPENROUTER_API_KEY` in `.env`
+- Check your credits at [openrouter.ai](https://openrouter.ai)
+
+### Local Ollama not working
+
+- Run `ollama pull llava` first to download the model
+- The agent auto-starts Ollama, but the model file must exist locally
+- Check that your GPU has enough VRAM (8GB+ recommended for llava)
 
 ---
 
-## 📋 Requirements
+## 📦 Requirements
 
 ```
 Pillow>=10.0.0
@@ -345,24 +370,45 @@ mss>=9.0.1
 pyperclip>=1.8.2
 ```
 
+Install all at once:
+```bash
+pip install -r requirements.txt
+```
+
+---
+
+## 🤝 Contributing
+
+Pull requests are welcome! Areas where contributions would be especially valuable:
+
+- 🌍 **Multi-language support** — Better handling of non-English chat conversations
+- 🧪 **Test suite** — Unit tests for the executor and parser
+- 🎨 **UI improvements** — Better dark theme, resizable window, chat history export
+- 📱 **Platform-specific tuning** — Optimized region presets for WhatsApp, Slack, etc.
+- 🔧 **Config UI** — A settings panel instead of editing `.env` directly
+
 ---
 
 ## 📝 License
 
-MIT License — free to use, modify, and distribute.
+MIT License — free to use, modify, and distribute. See [LICENSE](LICENSE) for details.
 
 ---
 
 ## 🙏 Acknowledgements
 
-- [PyAutoGUI](https://pyautogui.readthedocs.io/) — Mouse & keyboard automation
-- [OpenRouter](https://openrouter.ai) — Unified AI API gateway
-- [Ollama](https://ollama.ai) — Local LLM runner
+- [PyAutoGUI](https://pyautogui.readthedocs.io/) — Cross-platform mouse & keyboard automation
+- [OpenRouter](https://openrouter.ai) — Unified API for 100+ AI models
+- [Ollama](https://ollama.ai) — Run large language models locally
 - [Pillow](https://pillow.readthedocs.io/) — Image processing
-- [mss](https://python-mss.readthedocs.io/) — Ultra-fast screen capture
+- [mss](https://python-mss.readthedocs.io/) — Ultra-fast cross-platform screen capture
 
 ---
 
 <div align="center">
-  <strong>Built with ❤️ — An autonomous AI agent for everyone.</strong>
+
+**If Chat Agent saved you time, give it a ⭐ — it helps others find it!**
+
+Made with ❤️ — An autonomous AI that chats like a human.
+
 </div>
