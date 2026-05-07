@@ -64,7 +64,7 @@ All of this happens in the background. You don't touch anything.
 ### Step 1 — Clone the repo
 
 ```bash
-git clone https://github.com/your-username/chat-agent.git
+git clone https://github.com/Hariprajwal/universal-chat-agent.git
 cd chat-agent
 ```
 
