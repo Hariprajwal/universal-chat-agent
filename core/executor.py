@@ -207,9 +207,17 @@ class ActionExecutor:
 
         elif atype == "TYPE":
             text = args[0].replace("\\n", "\n").replace("\\t", "\t")
-            # Use clipboard paste for speed + unicode support
+            # Decode any escaped unicode sequences the AI might output (e.g. \U0001F600 → 😀)
+            try:
+                text = text.encode('utf-8').decode('unicode_escape')
+            except Exception:
+                pass  # Already properly decoded, use as-is
+            # Use clipboard paste — supports all Unicode including emojis
             pyperclip.copy(text)
+            import time as _time
+            _time.sleep(0.1)  # Small wait so clipboard is ready
             pyautogui.hotkey("ctrl", "v")
+            _time.sleep(0.1)  # Let the app register the paste
 
         elif atype == "PRESS":
             key = args[0]
