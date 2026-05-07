@@ -13,6 +13,7 @@ import threading
 import argparse
 import time
 import io
+import subprocess
 
 # Fix Unicode output on Windows
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
@@ -121,6 +122,29 @@ def check_backends():
               f"({info.get('backend', 'unknown')})")
 
 
+def start_ollama_if_needed():
+    """Attempt to start Ollama if it's not already running."""
+    from backends.ollama_backend import OllamaBackend
+    ollama = OllamaBackend()
+    if not ollama.is_available():
+        print("[main] 🚀 Ollama not detected. Attempting to start 'ollama serve'...")
+        try:
+            # Start ollama serve in a background process
+            # Use CREATE_NO_WINDOW on Windows to prevent console popup
+            creationflags = 0x08000000 if sys.platform == "win32" else 0
+            subprocess.Popen(["ollama", "serve"], creationflags=creationflags)
+            
+            # Wait a few seconds for it to warm up
+            for _ in range(8):
+                time.sleep(1)
+                if ollama.is_available():
+                    print("[main] ✅ Ollama started successfully.")
+                    return True
+        except Exception as e:
+            print(f"[main] ❌ Could not start Ollama: {e}")
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser(description="Screen Agent")
     parser.add_argument("--now", action="store_true",
@@ -130,6 +154,9 @@ def main():
     parser.add_argument("--dry-run", action="store_true",
                         help="Log actions without executing (safe mode)")
     args = parser.parse_args()
+
+    # Automatically start Ollama if configured as default or available
+    start_ollama_if_needed()
 
     print_banner()
     check_backends()

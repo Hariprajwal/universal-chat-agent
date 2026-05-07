@@ -37,6 +37,7 @@ class AgentWindow:
         self.memory = memory
         self.backend_manager = backend_manager
         self._stop_flag = False
+        self.autonomous_mode = False
         self.root = None
 
     def show(self):
@@ -235,19 +236,27 @@ class AgentWindow:
         self._send_message()
         return "break"
 
-    def _send_message(self):
-        user_text = self._input_text.get("1.0", "end-1c").strip()
-        if not user_text or user_text == "Type instruction...":
-            return
+    def _send_message(self, silent_prompt: str = None):
+        if not silent_prompt:
+            user_text = self._input_text.get("1.0", "end-1c").strip()
+            if not user_text or user_text == "Type instruction...":
+                return
+            self._input_text.delete("1.0", "end")
+            self._add_chat_bubble("You", user_text, BG_MSG_U, ACCENT)
+            self.autonomous_mode = True
+        else:
+            user_text = silent_prompt
+            self._set_status("Looping for next step...", ORANGE)
 
-        self._input_text.delete("1.0", "end")
         self._set_ui_busy(True)
         self._stop_flag = False
 
-        self._add_chat_bubble("You", user_text, BG_MSG_U, ACCENT)
-
-        from core.capture import image_to_base64
-        screenshot_b64 = image_to_base64(self.screenshot)
+        from core.capture import image_to_base64, draw_analysis_grid
+        
+        # Apply visual analysis layer (Coordinate Grid)
+        analyzed_img = draw_analysis_grid(self.screenshot)
+        screenshot_b64 = image_to_base64(analyzed_img)
+        
         self.memory.add_user_message(user_text, screenshot_b64=screenshot_b64)
 
         agent_text_widget = self._add_streaming_bubble("Agent", BG_MSG_A, GREEN)
@@ -304,16 +313,25 @@ class AgentWindow:
 
         def run_actions():
             result = executor.execute(actions)
-            if result.needs_screenshot:
-                self.root.after(500, self._auto_recapture)
+            
+            is_done = "RESPONSE: DONE" in response_text
+            if is_done:
+                self.autonomous_mode = False
+                
+            if result.needs_screenshot or self.autonomous_mode:
+                self.root.after(500, self._auto_recapture_and_continue)
             else:
-                # Default to recapture anyway so it constantly sees the live area
                 self.root.after(500, self._auto_recapture)
                 
-            status = "✅ Actions completed" if result.success else f"⚠ {len(result.errors)} errors"
+            status = "✅ Task completed" if is_done else ("✅ Actions done, continuing..." if self.autonomous_mode else "Ready.")
             self.root.after(0, lambda: self._set_status(status, GREEN if result.success else RED))
 
         threading.Thread(target=run_actions, daemon=True).start()
+
+    def _auto_recapture_and_continue(self):
+        self._auto_recapture()
+        if self.autonomous_mode and not self._stop_flag:
+            self._send_message(silent_prompt="Screenshot updated. If task is complete, reply with 'RESPONSE: DONE'. Otherwise, output the next actions.")
 
     def _auto_recapture(self):
         """Auto-capture a fresh screenshot of the *same region*."""

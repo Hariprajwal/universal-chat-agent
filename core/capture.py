@@ -124,6 +124,52 @@ def image_to_base64(img: Image.Image, max_size: tuple = (1280, 720)) -> str:
     return base64.b64encode(buffer.getvalue()).decode("utf-8")
 
 
+def draw_analysis_grid(img: Image.Image) -> Image.Image:
+    """Draws a 10x10 coordinate grid on the image to act as a visual scaffold for VLMs."""
+    from PIL import ImageDraw
+    grid_img = img.copy()
+    draw = ImageDraw.Draw(grid_img, "RGBA")
+    w, h = img.size
+    
+    cols, rows = 20, 20
+    line_color = (0, 212, 255, 60)   # Fainter cyan for dense grid
+    major_line_color = (0, 212, 255, 180) # Stronger cyan for 10x10 marks
+    text_color = (255, 255, 255, 255)
+    text_bg = (0, 0, 0, 200)
+    
+    for i in range(1, cols):
+        x = int(w * (i / cols))
+        is_major = (i % 2 == 0)
+        draw.line([(x, 0), (x, h)], fill=major_line_color if is_major else line_color, width=1)
+        if is_major:
+            label = str(int((i / cols) * 1000))
+            draw.rectangle([x-14, 0, x+14, 12], fill=text_bg)
+            draw.text((x-10, 0), label, fill=text_color)
+            draw.rectangle([x-14, h-12, x+14, h], fill=text_bg)
+            draw.text((x-10, h-12), label, fill=text_color)
+        
+    for i in range(1, rows):
+        y = int(h * (i / rows))
+        is_major = (i % 2 == 0)
+        draw.line([(0, y), (w, y)], fill=major_line_color if is_major else line_color, width=1)
+        if is_major:
+            label = str(int((i / rows) * 1000))
+            draw.rectangle([0, y-6, 26, y+6], fill=text_bg)
+            draw.text((2, y-6), label, fill=text_color)
+            draw.rectangle([w-26, y-6, w, y+6], fill=text_bg)
+            draw.text((w-24, y-6), label, fill=text_color)
+
+    # Center crosshairs
+    for i in range(cols):
+        for j in range(rows):
+            cx = int(w * ((i + 0.5) / cols))
+            cy = int(h * ((j + 0.5) / rows))
+            draw.line([(cx-2, cy), (cx+2, cy)], fill=line_color, width=1)
+            draw.line([(cx, cy-2), (cx, cy+2)], fill=line_color, width=1)
+
+    return grid_img
+
+
 if __name__ == "__main__":
     selector = RegionSelector()
     print("Select a region on screen...")

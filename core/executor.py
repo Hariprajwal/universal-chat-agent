@@ -17,12 +17,17 @@ pyautogui.PAUSE = 0.15          # Small pause between actions
 
 # Regex patterns for action parsing
 ACTION_PATTERNS = {
-    "CLICK":      re.compile(r"CLICK\((\d+),\s*(\d+)\)"),
-    "RCLICK":     re.compile(r"RCLICK\((\d+),\s*(\d+)\)"),
-    "DCLICK":     re.compile(r"DCLICK\((\d+),\s*(\d+)\)"),
+    "CLICK":      re.compile(r"CLICK\((\d+),\s*(\d+)(?:,\s*(\d+),\s*(\d+))?\)"),
+    "RCLICK":     re.compile(r"RCLICK\((\d+),\s*(\d+)(?:,\s*(\d+),\s*(\d+))?\)"),
+    "DCLICK":     re.compile(r"DCLICK\((\d+),\s*(\d+)(?:,\s*(\d+),\s*(\d+))?\)"),
     "TYPE":       re.compile(r'TYPE\("((?:[^"\\]|\\.)*)"\)'),
+    "PRESS":      re.compile(r'PRESS\("((?:[^"\\]|\\.)*)"\)'),
     "HOTKEY":     re.compile(r"HOTKEY\(([^)]+)\)"),
-    "SCROLL":     re.compile(r"SCROLL\((\d+),\s*(\d+),\s*(-?\d+)\)"),
+    "SCROLL":     re.compile(r"SCROLL\((\d+),\s*(\d+)(?:,\s*(\d+),\s*(\d+))?,\s*(-?\d+)\)"),
+    "HOVER":      re.compile(r"HOVER\((\d+),\s*(\d+)(?:,\s*(\d+),\s*(\d+))?\)"),
+    "DRAG":       re.compile(r"DRAG\((\d+),\s*(\d+),\s*(\d+),\s*(\d+)\)"),
+    "MOUSE_DOWN": re.compile(r"MOUSE_DOWN\((\d+),\s*(\d+)(?:,\s*(\d+),\s*(\d+))?\)"),
+    "MOUSE_UP":   re.compile(r"MOUSE_UP\((\d+),\s*(\d+)(?:,\s*(\d+),\s*(\d+))?\)"),
     "WAIT":       re.compile(r"WAIT\((\d+)\)"),
     "SCREENSHOT": re.compile(r"SCREENSHOT\(\)"),
     "NONE":       re.compile(r"NONE"),
@@ -82,6 +87,23 @@ class ActionExecutor:
         ry = int((ny / 1000.0) * self.region_h)
         # Add the screen offset
         return rx + self.offset_x, ry + self.offset_y
+
+    def _parse_coords(self, args, start_idx=0) -> tuple[int, int]:
+        """Parses [x, y] or [xmin, ymin, xmax, ymax] into a single center coordinate."""
+        if len(args) > start_idx + 3 and args[start_idx+2] is not None and args[start_idx+3] is not None:
+            # Bounding box provided
+            xmin = int(args[start_idx])
+            ymin = int(args[start_idx+1])
+            xmax = int(args[start_idx+2])
+            ymax = int(args[start_idx+3])
+            nx = (xmin + xmax) // 2
+            ny = (ymin + ymax) // 2
+            return self._unnormalize(nx, ny)
+        else:
+            # Direct coordinate provided
+            nx = int(args[start_idx])
+            ny = int(args[start_idx+1])
+            return self._unnormalize(nx, ny)
 
     def parse_response(self, response_text: str) -> list[Action]:
         """Extract structured actions from AI response text."""
@@ -169,17 +191,17 @@ class ActionExecutor:
             return None
 
         elif atype == "CLICK":
-            x, y = self._unnormalize(int(args[0]), int(args[1]))
+            x, y = self._parse_coords(args)
             pyautogui.moveTo(x, y, duration=0.3)
             pyautogui.click(x, y)
 
         elif atype == "RCLICK":
-            x, y = self._unnormalize(int(args[0]), int(args[1]))
+            x, y = self._parse_coords(args)
             pyautogui.moveTo(x, y, duration=0.3)
             pyautogui.rightClick(x, y)
 
         elif atype == "DCLICK":
-            x, y = self._unnormalize(int(args[0]), int(args[1]))
+            x, y = self._parse_coords(args)
             pyautogui.moveTo(x, y, duration=0.3)
             pyautogui.doubleClick(x, y)
 
@@ -189,13 +211,40 @@ class ActionExecutor:
             pyperclip.copy(text)
             pyautogui.hotkey("ctrl", "v")
 
+        elif atype == "PRESS":
+            key = args[0]
+            pyautogui.press(key)
+
         elif atype == "HOTKEY":
             keys = [k.strip() for k in args[0].split(",")]
             pyautogui.hotkey(*keys)
 
+        elif atype == "HOVER":
+            x, y = self._parse_coords(args)
+            pyautogui.moveTo(x, y, duration=0.3)
+
+        elif atype == "DRAG":
+            # DRAG specifically takes 4 args for start and end
+            sx, sy = self._unnormalize(int(args[0]), int(args[1]))
+            ex, ey = self._unnormalize(int(args[2]), int(args[3]))
+            pyautogui.moveTo(sx, sy, duration=0.3)
+            pyautogui.dragTo(ex, ey, duration=0.5, button='left')
+
+        elif atype == "MOUSE_DOWN":
+            x, y = self._parse_coords(args)
+            pyautogui.moveTo(x, y, duration=0.3)
+            pyautogui.mouseDown(button='left')
+
+        elif atype == "MOUSE_UP":
+            x, y = self._parse_coords(args)
+            pyautogui.moveTo(x, y, duration=0.3)
+            pyautogui.mouseUp(button='left')
+
         elif atype == "SCROLL":
-            x, y = self._unnormalize(int(args[0]), int(args[1]))
-            clicks = int(args[2])
+            # Scroll has optional bounding box plus the scroll amount
+            x, y = self._parse_coords(args)
+            # Find the last argument which is the scroll amount
+            clicks = int(args[-1]) if args[-1] is not None else int(args[2])
             pyautogui.scroll(clicks, x=x, y=y)
 
         elif atype == "WAIT":

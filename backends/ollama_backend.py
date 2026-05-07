@@ -20,6 +20,7 @@ VISION_MODEL_PRIORITY = [
     "llava",
     "llava:13b",
     "minicpm-v",
+    "paligemma",
     "moondream",
     "bakllava",
     "llava-phi3",
@@ -33,7 +34,10 @@ class OllamaBackend(BaseBackend):
     """
 
     def __init__(self):
-        self.host = OLLAMA_HOST
+        host = OLLAMA_HOST.strip()
+        if not host.startswith(("http://", "https://")):
+            host = f"http://{host}"
+        self.host = host
         self._model_override = os.getenv("OLLAMA_MODEL", "auto")
         self._selected_model: str | None = None
 
@@ -141,8 +145,8 @@ class OllamaBackend(BaseBackend):
                             break
                     except json.JSONDecodeError:
                         continue
-        except requests.exceptions.ConnectionError:
-            raise RuntimeError("❌ Ollama not running. Run 'ollama serve' first.")
+        except requests.exceptions.ConnectionError as e:
+            raise RuntimeError(f"❌ Ollama Connection Error: {e}")
         except Exception as e:
             raise RuntimeError(f"Ollama streaming failed: {e}")
 

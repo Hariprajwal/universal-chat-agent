@@ -42,11 +42,25 @@ class BackendManager:
 
     def analyze(self, messages: list[dict]) -> str:
         """Run analysis on current backend."""
-        return self._current.analyze(messages)
+        try:
+            return self._current.analyze(messages)
+        except Exception as e:
+            if self.current_name == "ollama":
+                print(f"[BackendManager] Ollama failed: {e}. Falling back to OpenRouter...")
+                self.switch("openrouter")
+                return self._current.analyze(messages)
+            raise e
 
     def stream(self, messages: list[dict], on_chunk: callable) -> str:
         """Stream response from current backend."""
-        return self._current.stream_analyze(messages, on_chunk=on_chunk)
+        try:
+            return self._current.stream_analyze(messages, on_chunk=on_chunk)
+        except Exception as e:
+            if self.current_name == "ollama":
+                print(f"[BackendManager] Ollama failed: {e}. Falling back to OpenRouter...")
+                self.switch("openrouter")
+                return self._current.stream_analyze(messages, on_chunk=on_chunk)
+            raise e
 
     def is_available(self) -> bool:
         return self._current.is_available()
