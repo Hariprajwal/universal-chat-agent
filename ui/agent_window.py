@@ -332,11 +332,15 @@ class AgentWindow:
             is_done = "RESPONSE: DONE" in response_text
             if is_done:
                 self.autonomous_mode = False
+                # If watch mode is on, reset busy so it resumes monitoring
+                self.root.after(0, self._watch_reset_busy)
                 
             if result.needs_screenshot or self.autonomous_mode:
                 self.root.after(500, self._auto_recapture_and_continue)
             else:
                 self.root.after(500, self._auto_recapture)
+                # Also reset watch busy on non-autonomous completion
+                self.root.after(1000, self._watch_reset_busy)
                 
             status = "✅ Task completed" if is_done else ("✅ Actions done, continuing..." if self.autonomous_mode else "Ready.")
             self.root.after(0, lambda: self._set_status(status, GREEN if result.success else RED))
@@ -375,21 +379,22 @@ class AgentWindow:
 
     def _monitor_loop(self):
         """
-        Background thread: polls screen every 2s using mss.
-        Focuses on BOTTOM 35% of the region where new chat messages appear.
-        Uses two-frame confirmation to avoid false positives from blinking cursors.
+        Background thread: polls screen every 1.5s using mss.
+        - DEBOUNCE: waits 4s after first change to collect all incoming messages
+        - CONTINUOUS: never stops watching, resets immediately after AI finishes
+        - CONTEXT-AWARE: always captures full region so AI sees entire conversation
         """
         import mss
         import hashlib
+        import random
 
-        POLL_INTERVAL = 2.0    # seconds between checks
-        COOLDOWN = 10.0        # seconds to wait after triggering AI
-        CONFIRM_DELAY = 0.5    # seconds to wait before confirming change is real
+        POLL_INTERVAL  = 1.5   # seconds between checks
+        DEBOUNCE_WAIT  = 4.0   # wait this long after first change for more messages
+        COOLDOWN       = 5.0   # seconds to wait after AI finishes before watching again
         last_trigger_time = 0
         self._is_agent_busy = False
 
         def _capture_bottom():
-            """Capture bottom 35% of region using mss."""
             left   = self.region.get("left", 0)
             top    = self.region.get("top", 0)
             width  = self.region.get("width", 800)
@@ -405,14 +410,21 @@ class AgentWindow:
             tiny = img.resize((32, 32)).convert("L")
             return hashlib.md5(tiny.tobytes()).hexdigest()
 
-        # Warm up — capture initial frame
-        print("[Watch] Monitor loop starting...")
+        def _capture_full():
+            try:
+                from core.capture import RegionSelector
+                return RegionSelector()._capture_region(self.region)
+            except Exception:
+                return self.screenshot
+
+        # Warm up
+        print("[Watch] Monitor loop starting (continuous mode)...")
         try:
             init_img = _capture_bottom()
             last_hash = _img_hash(init_img)
-            print(f"[Watch] Initial hash: {last_hash[:8]}... — baseline set.")
+            print(f"[Watch] Baseline set: {last_hash[:8]}...")
         except Exception as e:
-            print(f"[Watch] ❌ FATAL: Cannot capture screen: {e}")
+            print(f"[Watch] ❌ FATAL: {e}")
             self.root.after(0, lambda: self._set_status(f"Watch FAILED: {e}", RED))
             self._watch_active = False
             return
@@ -425,15 +437,12 @@ class AgentWindow:
 
             poll_count += 1
 
-            # Don't fire while agent is busy processing
+            # Skip while AI is processing (but keep polling to detect new messages)
             if self._is_agent_busy:
-                if poll_count % 5 == 0:
-                    print(f"[Watch] Poll #{poll_count} — skipping (agent busy)")
                 continue
 
-            # Cooldown
-            elapsed = time.time() - last_trigger_time
-            if elapsed < COOLDOWN:
+            # Cooldown after last trigger
+            if time.time() - last_trigger_time < COOLDOWN:
                 continue
 
             try:
@@ -444,59 +453,49 @@ class AgentWindow:
                 continue
 
             if new_hash != last_hash:
-                # Possible change detected — wait and confirm it's not a blink
-                print(f"[Watch] Change candidate: {last_hash[:8]} → {new_hash[:8]}. Confirming...")
-                time.sleep(CONFIRM_DELAY)
+                print(f"[Watch] Change detected: {last_hash[:8]} → {new_hash[:8]}")
+                print(f"[Watch] Debouncing {DEBOUNCE_WAIT}s to collect all messages...")
 
+                # DEBOUNCE: wait to let the person finish sending all their messages
+                time.sleep(DEBOUNCE_WAIT)
+
+                # Capture the final state after all messages have arrived
                 try:
-                    confirm_img = _capture_bottom()
-                    confirm_hash = _img_hash(confirm_img)
+                    final_img = _capture_bottom()
+                    final_hash = _img_hash(final_img)
+                    last_hash = final_hash
                 except Exception:
-                    continue
+                    last_hash = new_hash
 
-                if confirm_hash == new_hash:
-                    # Confirmed — screen really changed
-                    print(f"[Watch] ✅ CONFIRMED change. Triggering AI response!")
-                    last_hash = confirm_hash
+                if not self._stop_flag:
+                    print(f"[Watch] ✅ Triggering AI with full context screenshot")
+                    last_trigger_time = time.time()
+                    self._is_agent_busy = True
+                    self.screenshot = _capture_full()  # Full region for AI context
 
-                    # Grab the full region for the AI
-                    try:
-                        from core.capture import RegionSelector
-                        selector = RegionSelector()
-                        full_img = selector._capture_region(self.region)
-                        self.screenshot = full_img
-                    except Exception as e:
-                        print(f"[Watch] Full capture error: {e}")
-
-                    if not self._stop_flag:
-                        last_trigger_time = time.time()
-                        self._is_agent_busy = True
-                        prompt = (
-                            "WATCH MODE TRIGGERED: The bottom of the screen just changed — "
-                            "a new message or response has appeared. "
-                            "1. Read the newest message bubble at the bottom of the chat. "
-                            "2. Click the message input box. "
-                            "3. Type a relevant, natural reply. "
-                            "4. Press Enter to send it. "
-                            "Do not explain yourself — just execute the actions."
-                        )
-                        self.root.after(0, lambda p=prompt: self._watch_trigger(p))
-                else:
-                    # Transient change (cursor blink, animation) — ignore
-                    print(f"[Watch] False positive (blink). Ignoring.")
-                    last_hash = confirm_hash
+                    # Random 1-3 reply count for natural conversation feel
+                    reply_count = random.randint(1, 3)
+                    prompt = (
+                        f"WATCH MODE: New message(s) arrived in this chat. "
+                        f"Look at the full conversation visible on screen to understand the context. "
+                        f"Read ALL the new messages at the bottom carefully. "
+                        f"Respond naturally, like a real person texting. "
+                        f"Send exactly {reply_count} message(s) — use separate TYPE+PRESS(enter) for each. "
+                        f"Use emojis where appropriate. Keep each message short and conversational. "
+                        f"After sending all {reply_count} message(s), output RESPONSE: DONE."
+                    )
+                    self.root.after(0, lambda p=prompt: self._watch_trigger(p))
             else:
-                if poll_count % 10 == 0:
+                if poll_count % 15 == 0:
                     print(f"[Watch] Poll #{poll_count} — no change.")
 
         print("[Watch] Monitor loop stopped.")
 
     def _watch_trigger(self, prompt: str):
         """Called from main thread when watch detects a change."""
-        print(f"[Watch] Firing _send_message from main thread...")
+        print(f"[Watch] Firing AI from main thread...")
+        self.autonomous_mode = False  # Prevent autonomous loop from taking over
         self._send_message(silent_prompt=prompt)
-        # Reset busy flag after a delay to allow the full action cycle to complete
-        self.root.after(15000, self._watch_reset_busy)
 
     def _watch_reset_busy(self):
         """Reset the busy lock so watch can trigger again."""
