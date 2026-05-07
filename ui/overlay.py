@@ -25,7 +25,7 @@ class ScreenOverlay:
         self._cancelled = False
 
         root = tk.Tk()
-        root.title("Screen Agent")
+        root.title("Chat Agent")
         root.attributes("-fullscreen", True)
         root.attributes("-alpha", 0.3)
         root.attributes("-topmost", True)

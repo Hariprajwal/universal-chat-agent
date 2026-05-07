@@ -49,7 +49,7 @@ class AgentWindow:
     def show(self):
         """Launch the agent window (blocking)."""
         self.root = tk.Tk()
-        self.root.title("⚡ Screen Agent")
+        self.root.title("⚡ Chat Agent")
         
         # Make it a compact, always-on-top tool window
         self.root.geometry("400x550")
@@ -72,7 +72,7 @@ class AgentWindow:
         topbar.pack_propagate(False)
 
         title_lbl = tk.Label(
-            topbar, text="⚡ Screen Agent",
+            topbar, text="⚡ Chat Agent",
             bg=BG_PANEL, fg=ACCENT,
             font=FONT_TITLE
         )

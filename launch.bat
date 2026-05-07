@@ -1,5 +1,5 @@
 @echo off
 cd /d "%~dp0"
-echo Starting Screen Agent...
+echo Starting Chat Agent...
 start "" pythonw main.py
 exit

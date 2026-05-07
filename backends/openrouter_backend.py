@@ -42,7 +42,7 @@ class OpenRouterBackend(BaseBackend):
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
             "HTTP-Referer": "https://screen-agent.local",
-            "X-Title": "Screen Agent",
+            "X-Title": "Chat Agent",
         }
 
     def _resolve_model(self) -> str:

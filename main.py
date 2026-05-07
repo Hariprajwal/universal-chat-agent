@@ -1,6 +1,6 @@
 """
 main.py
-Screen Agent — Entry point.
+Chat Agent — Entry point.
 
 Usage:
     python main.py          # Start with system tray + hotkey listener
@@ -97,8 +97,8 @@ def register_hotkey():
 def print_banner():
     print("""
 ╔══════════════════════════════════════════════════╗
-║           ⚡  SCREEN AGENT  ⚡                  ║
-║  AI-powered screen interaction tool              ║
+║           ⚡  CHAT AGENT  ⚡                    ║
+║  AI-powered autonomous chat interaction tool     ║
 ║  Hotkey: Ctrl + Shift + S                        ║
 ╚══════════════════════════════════════════════════╝
 """)
@@ -146,7 +146,7 @@ def start_ollama_if_needed():
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Screen Agent")
+    parser = argparse.ArgumentParser(description="Chat Agent")
     parser.add_argument("--now", action="store_true",
                         help="Launch agent immediately without tray")
     parser.add_argument("--no-tray", action="store_true",

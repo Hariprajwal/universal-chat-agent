@@ -1,8 +1,8 @@
-# ⚡ Screen Agent — Autonomous AI Desktop Co-Pilot
+# ⚡ Chat Agent — Autonomous AI Desktop Co-Pilot
 
 > **Select any region of your screen → Give a natural language instruction → Watch the AI do it for you.**
 
-Screen Agent is a fully autonomous, vision-powered desktop automation tool. It captures a region of your screen, overlays a precision coordinate grid, sends the visual to a powerful AI model, and executes the resulting mouse clicks, keyboard inputs, scrolls, and drags — all without you lifting a finger.
+Chat Agent is a fully autonomous, vision-powered desktop automation tool. It captures a region of your screen, overlays a precision coordinate grid, sends the visual to a powerful AI model, and executes the resulting mouse clicks, keyboard inputs, scrolls, and drags — all without you lifting a finger.
 
 ---
 
@@ -111,7 +111,7 @@ Press **⏹ Stop** at any time to interrupt execution.
 
 ## 👁 Watch Mode — Autonomous Chat Monitoring
 
-Watch Mode turns Screen Agent into a **fully autonomous chat responder** for any messaging app on your screen. Once enabled, it monitors your chat window continuously and replies to every incoming message automatically — no manual trigger needed.
+Watch Mode turns Chat Agent into a **fully autonomous chat responder** for any messaging app on your screen. Once enabled, it monitors your chat window continuously and replies to every incoming message automatically — no manual trigger needed.
 
 ### How to enable it:
 
@@ -183,7 +183,7 @@ Run 100% offline with your own hardware. Requires a GPU (8GB+ VRAM recommended).
    # or for better quality:
    ollama pull minicpm-v
    ```
-3. Ollama starts **automatically** when Screen Agent launches — no need to run `ollama serve` manually!
+3. Ollama starts **automatically** when Chat Agent launches — no need to run `ollama serve` manually!
 4. Switch in `.env`:
    ```env
    DEFAULT_BACKEND=ollama

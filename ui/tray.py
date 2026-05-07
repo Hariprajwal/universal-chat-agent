@@ -45,7 +45,7 @@ class TrayApp:
 
             menu = pystray.Menu(
                 pystray.MenuItem(
-                    "🚀 Start Agent  (Ctrl+Shift+S)",
+                    "🚀 Start Chat Agent  (Ctrl+Shift+S)",
                     lambda: threading.Thread(
                         target=self.on_activate, daemon=True
                     ).start()
@@ -58,9 +58,9 @@ class TrayApp:
             )
 
             self._icon = pystray.Icon(
-                "ScreenAgent",
+                "ChatAgent",
                 icon_image,
-                "Screen Agent",
+                "Chat Agent",
                 menu
             )
             self._icon.run()

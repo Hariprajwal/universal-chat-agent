@@ -39,7 +39,7 @@ class RegionSelector:
         root.attributes("-topmost", True)
         root.configure(bg="black")
         root.config(cursor="crosshair")
-        root.title("Screen Agent — Select Region")
+        root.title("Chat Agent — Select Region")
 
         canvas = tk.Canvas(root, bg="black", cursor="crosshair",
                            highlightthickness=0)
