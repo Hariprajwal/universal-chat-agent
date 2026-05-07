@@ -300,6 +300,8 @@ class AgentWindow:
             except Exception as e:
                 self.root.after(0, lambda: self._add_chat_bubble("System", f"❌ Error: {str(e)}", "#2d0a0a", RED))
                 self.root.after(0, lambda: self._set_status("Error occurred", RED))
+                # Always unblock watch on error
+                self.root.after(500, self._watch_reset_busy)
             finally:
                 self.root.after(0, lambda: self._set_ui_busy(False))
 
@@ -324,6 +326,8 @@ class AgentWindow:
         
         if not actions:
             self._set_status("Ready.", GREEN)
+            # No actions to run — unblock watch immediately
+            self._watch_reset_busy()
             return
 
         def run_actions():
@@ -473,16 +477,16 @@ class AgentWindow:
                     self._is_agent_busy = True
                     self.screenshot = _capture_full()  # Full region for AI context
 
-                    # Random 1-3 reply count for natural conversation feel
-                    reply_count = random.randint(1, 3)
                     prompt = (
-                        f"WATCH MODE: New message(s) arrived in this chat. "
-                        f"Look at the full conversation visible on screen to understand the context. "
-                        f"Read ALL the new messages at the bottom carefully. "
-                        f"Respond naturally, like a real person texting. "
-                        f"Send exactly {reply_count} message(s) — use separate TYPE+PRESS(enter) for each. "
-                        f"Use emojis where appropriate. Keep each message short and conversational. "
-                        f"After sending all {reply_count} message(s), output RESPONSE: DONE."
+                        "WATCH MODE: New message(s) arrived in this chat. "
+                        "Look at the full conversation visible on screen for context. "
+                        "Read ALL new messages at the bottom carefully. "
+                        "Respond exactly like a real person texting — plain text only, no emojis. "
+                        "Decide naturally how many messages to send (1 or 2) and how long each should be. "
+                        "If the message is simple, a short reply is fine. "
+                        "If it needs a thoughtful response, write 2-4 sentences. "
+                        "Use separate TYPE+PRESS(enter) for each message you send. "
+                        "After all messages are sent, output RESPONSE: DONE."
                     )
                     self.root.after(0, lambda p=prompt: self._watch_trigger(p))
             else:
